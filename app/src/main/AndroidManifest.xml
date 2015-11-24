@@ -18,7 +18,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EncryptActivity" >
+        <activity
+            android:name=".EncryptActivity"
+            android:label="EncryptActivity"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".DecryptActivity"
@@ -26,5 +29,6 @@
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>

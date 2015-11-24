@@ -7,7 +7,30 @@
     tools:showIn="@layout/activity_encrypt" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="net.stegochat.EncryptActivity">
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin" android:text="@string/large_text" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/encrypt_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/message_body" />
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/encrypt_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:password="true" />
+
+
+    </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

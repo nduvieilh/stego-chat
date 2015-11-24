@@ -8,6 +8,8 @@
     <string name="app_description">
         TODO: Thomas will write out the description of the app to go on the first page
     </string>
+    <string name="password">Password (optional)</string>
+    <string name="message_body">Message</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 
