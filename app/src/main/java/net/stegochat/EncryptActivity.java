@@ -2,6 +2,7 @@ package net.stegochat;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -82,6 +83,16 @@ public class EncryptActivity extends AppCompatActivity {
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 imgDecodableString = cursor.getString(columnIndex);
                 cursor.close();
+
+//                encode(imgDecodableString);
+
+//                Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
+//                int mPhotoWidth = mBitmap.getWidth();
+//                int mPhotoHeight = mBitmap.getHeight();
+//
+//                int[] pix = new int[mPhotoWidth * mPhotoHeight];
+//                mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
                 // Set the Image in ImageView after decoding the String
                 imgView.setImageBitmap(BitmapFactory
@@ -97,6 +108,7 @@ public class EncryptActivity extends AppCompatActivity {
         }
 
     }
+
 
     public void getImage(View view) {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
@@ -157,5 +169,63 @@ public class EncryptActivity extends AppCompatActivity {
         Snackbar.make(view, message + " " + password, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         //embedImage()
+    }
+
+
+    //FIXME actually make these work
+    //The below three functions are used to embed the text in the image, check out that link
+    //on steganography in java for the source code to this
+
+    //This is the one I planned on using once I figured out how all of this worked
+    private void encode(String imgDecodableString, int offset) {
+        Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
+        int mPhotoWidth = mBitmap.getWidth();
+        int mPhotoHeight = mBitmap.getHeight();
+
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
+        int index;
+        for (int y = 0; y < mPhotoHeight; y++) {
+            for (int x = 0; x < mPhotoWidth; x++) {
+                index = y * mPhotoWidth + x;
+            }
+        }
+    }
+
+    //These two aren't majorly useful yet, but I'm working them out.
+    private byte[] bit_conversion(int i)
+    {
+        byte byte3 = (byte)((i & 0xFF000000) >>> 24); //0
+        byte byte2 = (byte)((i & 0x00FF0000) >>> 16); //0
+        byte byte1 = (byte)((i & 0x0000FF00) >>> 8 ); //0
+        byte byte0 = (byte)((i & 0x000000FF)     );
+        //{0,0,0,byte0} is equivalent, since all shifts >=8 will be 0
+        return(new byte[]{byte3,byte2,byte1,byte0});
+    }
+
+    private byte[] encode_text(byte[] image, byte[] addition, int offset)
+    {
+        //check that the data + offset will fit in the image
+        if(addition.length + offset > image.length)
+        {
+            throw new IllegalArgumentException("File not long enough!");
+        }
+        //loop through each addition byte
+        for(int i=0; i<addition.length; ++i)
+        {
+            //loop through the 8 bits of each byte
+            int add = addition[i];
+            for(int bit=7; bit>=0; --bit, ++offset) //ensure the new offset value carries on through both loops
+            {
+                //assign an integer to b, shifted by bit spaces AND 1
+                //a single bit of the current byte
+                int b = (add >>> bit) & 1;
+                //assign the bit by taking: [(previous byte value) AND 0xfe] OR bit to add
+                //changes the last bit of the byte in the image to be the bit of addition
+                image[offset] = (byte)((image[offset] & 0xFE) | b );
+            }
+        }
+        return image;
     }
 }
