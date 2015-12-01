@@ -84,19 +84,27 @@ public class EncryptActivity extends AppCompatActivity {
                 imgDecodableString = cursor.getString(columnIndex);
                 cursor.close();
 
-//                encode(imgDecodableString);
+                String text = "This is a long test string so I can see how long I can really make this thing by god this line is long";
+                byte msg[] = text.getBytes();
+                byte len[] = bit_conversion(msg.length);
 
-//                Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
-//                int mPhotoWidth = mBitmap.getWidth();
-//                int mPhotoHeight = mBitmap.getHeight();
-//
-//                int[] pix = new int[mPhotoWidth * mPhotoHeight];
-//                mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+                Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
+
+                Bitmap encodedImage = encode(mBitmap, len, 0);
+                encodedImage = encode(encodedImage, msg, 32);
 
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
+                imgView.setImageBitmap(encodedImage);
+
+                decode(encodedImage);
                 // Set the Image in ImageView after decoding the String
-                imgView.setImageBitmap(BitmapFactory
-                        .decodeFile(imgDecodableString));
+//                imgView.setImageBitmap(BitmapFactory
+//                        .decodeFile(imgDecodableString));
+
+                byte foot[] = decode(encodedImage);
+                String str = new String(decode(encodedImage));
+                Toast.makeText(this, str, Toast.LENGTH_LONG).show();
+
 
             } else {
                 Toast.makeText(this, "You haven't picked Image",
@@ -109,6 +117,72 @@ public class EncryptActivity extends AppCompatActivity {
 
     }
 
+
+    private Bitmap encode(Bitmap mBitmap, byte[] addition, int offset) {
+        int mPhotoWidth = mBitmap.getWidth();
+        int mPhotoHeight = mBitmap.getHeight();
+
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
+        int[] pix_copy = new int[pix.length];
+
+        System.arraycopy(pix, 0, pix_copy, 0, pix.length);
+
+        int foo;
+//        int[] arr = new int[32];
+
+        for(int i=0; i<addition.length; ++i)
+        {
+            //loop through the 8 bits of each byte
+            int add = addition[i];
+            for(int bit=7; bit>=0; --bit, ++offset) //ensure the new offset value carries on through both loops
+            {
+                //assign an integer to b, shifted by bit spaces AND 1
+                //a single bit of the current byte
+                int b = (add >>> bit) & 1;
+//                arr[(i+1)*bit] = b;
+                //assign the bit by taking: [(previous byte value) AND 0xfe] OR bit to add
+                //changes the last bit of the byte in the image to be the bit of addition
+                pix[offset] = (pix[offset] & 0xFFFFFFFE) | b;
+//                    foo = pix[offset];
+            }
+        }
+        Bitmap bm = Bitmap.createBitmap(mPhotoWidth, mPhotoHeight, Bitmap.Config.ARGB_8888);
+        bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        return bm;
+    }
+
+    private byte[] decode(Bitmap mBitmap)
+    {
+        int mPhotoWidth = mBitmap.getWidth();
+        int mPhotoHeight = mBitmap.getHeight();
+
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
+        int length = 0;
+        int offset  = 32;
+        //loop through 32 bytes of data to determine text length
+        for(int i=0; i<32; ++i) //i=24 will also work, as only the 4th byte contains real data
+        {
+            length = (length << 1) | (pix[i] & 1);
+        }
+
+        byte[] result = new byte[length];
+
+        //loop through each byte of text
+        for(int b=0; b<result.length; ++b )
+        {
+            //loop through each bit within a byte of text
+            for(int i=0; i<8; ++i, ++offset)
+            {
+                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
+                result[b] = (byte)((result[b] << 1) | (pix[offset] & 1));
+            }
+        }
+        return result;
+    }
 
     public void getImage(View view) {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
@@ -177,21 +251,7 @@ public class EncryptActivity extends AppCompatActivity {
     //on steganography in java for the source code to this
 
     //This is the one I planned on using once I figured out how all of this worked
-    private void encode(String imgDecodableString, int offset) {
-        Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
-        int mPhotoWidth = mBitmap.getWidth();
-        int mPhotoHeight = mBitmap.getHeight();
 
-        int[] pix = new int[mPhotoWidth * mPhotoHeight];
-        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
-
-        int index;
-        for (int y = 0; y < mPhotoHeight; y++) {
-            for (int x = 0; x < mPhotoWidth; x++) {
-                index = y * mPhotoWidth + x;
-            }
-        }
-    }
 
     //These two aren't majorly useful yet, but I'm working them out.
     private byte[] bit_conversion(int i)
