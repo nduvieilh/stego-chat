@@ -14,10 +14,21 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.ByteArrayOutputStream;
+import android.content.ContentValues;
+//import java.io.OutputStream;
+import java.io.IOException;
+
+
+//import java.util.Random;
 
 public class EncryptActivity extends AppCompatActivity {
     private static int RESULT_LOAD_IMG = 1;
     String imgDecodableString;
+    String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +95,6 @@ public class EncryptActivity extends AppCompatActivity {
                 imgDecodableString = cursor.getString(columnIndex);
                 cursor.close();
 
-//                String text = "This is a long test string so I can see how long I can really make this thing by god this line is long";
-//                byte msg[] = text.getBytes();
-//                byte len[] = bit_conversion(msg.length);
 
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
@@ -180,7 +188,34 @@ public class EncryptActivity extends AppCompatActivity {
         Bitmap encodedImage = encode(mBitmap, len, 0);
         encodedImage = encode(encodedImage, msg, 32);
 
-        Snackbar.make(view, decode(encodedImage) + " " + password, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        String foo = new String(decode(encodedImage));
+
+        save_image(encodedImage);
+
+        File myFile = new File(imgDecodableString);
+        Uri uri = Uri.fromFile(myFile);
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        sendIntent.setType("image/png");
+        startActivity(Intent.createChooser(sendIntent, "Share with"));
+//
+////        Uri file = Uri.parse("/storage/emulated/0/ICL/test.png");
+//
+//        File f = new File("content://media/storage/emulated/0/ICL/test.png");
+//        ContentValues values = new ContentValues(2);
+//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+//        values.put(MediaStore.Images.Media.DATA, f.getAbsolutePath());
+//        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//
+//        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//        shareIntent.setType("image/png");
+//        shareIntent.putExtra(Intent.EXTRA_STREAM, f);
+//        startActivity(Intent.createChooser(shareIntent, "Sharing thing"));
+//        startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.send_to)));
+
+//        Snackbar.make(view, foo + " " + password, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
     private Bitmap encode(Bitmap mBitmap, byte[] addition, int offset) {
@@ -249,5 +284,40 @@ public class EncryptActivity extends AppCompatActivity {
         byte byte0 = (byte)((i & 0x000000FF)     );
         //{0,0,0,byte0} is equivalent, since all shifts >=8 will be 0
         return(new byte[]{byte3,byte2,byte1,byte0});
+    }
+
+    private void save_image(Bitmap encodedImage){
+        FileOutputStream fileOutputStream = null;
+        try {
+
+            // create a File object for the parent directory
+            File wallpaperDirectory = new File("/sdcard/ICL/");
+            // have the object build the directory structure, if needed.
+            wallpaperDirectory.mkdirs();
+
+            fileName = wallpaperDirectory.getAbsolutePath();
+
+            //Capture is folder name and file name with date and time
+            fileOutputStream = new FileOutputStream(String.format(
+                    "/sdcard/ICL/test.png"));
+//                    System.currentTimeMillis()));
+
+            // Here we Resize the Image ...
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            encodedImage.compress(Bitmap.CompressFormat.PNG, 100,
+                    byteArrayOutputStream); // bm is the bitmap object
+            byte[] bsResized = byteArrayOutputStream.toByteArray();
+
+
+            fileOutputStream.write(bsResized);
+            fileOutputStream.close();
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+        }
     }
 }
