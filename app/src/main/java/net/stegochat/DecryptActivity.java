@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.scottyab.aescrypt.AESCrypt;
+import java.security.GeneralSecurityException;
+
 public class DecryptActivity extends AppCompatActivity {
 
     @Override
@@ -25,4 +28,6 @@ public class DecryptActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

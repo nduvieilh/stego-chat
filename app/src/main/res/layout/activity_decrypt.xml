@@ -22,7 +22,7 @@
             android:scaleType="centerCrop"
             android:layout_gravity="center_horizontal"
             android:background="@color/colorPrimaryDark"
-            android:onClick="" />
+            android:onClick="getImage" />
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/toolbar_layout"

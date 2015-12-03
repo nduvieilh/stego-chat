@@ -14,6 +14,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.scottyab.aescrypt.AESCrypt;
+
+import java.security.GeneralSecurityException;
+
 public class EncryptActivity extends AppCompatActivity {
     private static int RESULT_LOAD_IMG = 1;
     String imgDecodableString;
@@ -32,7 +36,7 @@ public class EncryptActivity extends AppCompatActivity {
         read the message after it is extracted without the
         same password.
 
-        @author Nicky Duvieilh, Thomas Wilson
+        @author Nicky Duvieilh
 
         @param string message the main message text
         @param string password the password to encrypt the message with
@@ -40,8 +44,13 @@ public class EncryptActivity extends AppCompatActivity {
         @return string encrypted message
      */
     public String encryptMessage(String message, String password) {
-        // TODO: create the encryption code - Thomas
-        return "[" + password + "] " + message; // Temporary
+        String output = message;
+        try {
+            output =  AESCrypt.encrypt(password, message);
+        } catch(GeneralSecurityException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return output;
     }
 
     /*
@@ -128,6 +137,7 @@ public class EncryptActivity extends AppCompatActivity {
             return;
         }
 
+
         // Check if image exists in global scope before trying
         // embed the message into it
         if(true) { // Todo: Write conditional to ensure image exists
@@ -150,11 +160,13 @@ public class EncryptActivity extends AppCompatActivity {
 
         // Checks to see if password exists to encrypt message before embedding
         if (!isEmptyText(passwordText)) {
+            //message = encryptMessage(message, password);
             message = encryptMessage(message, password);
         }
 
         // Todo: Remove temporary snackbar
-        Snackbar.make(view, message + " " + password, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        //Snackbar.make(view, message + " " + password, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
         //embedImage()
     }

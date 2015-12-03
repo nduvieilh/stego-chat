@@ -18,11 +18,22 @@
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/decrypt_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/password"
             android:enabled="true"
             android:password="true" />
+
+        <TextView
+            android:id="@+id/decrypt_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false"
+            android:autoLink="all"
+            android:visibility="invisible" />
+
+
 
     </LinearLayout>
 
