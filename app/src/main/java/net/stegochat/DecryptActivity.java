@@ -69,7 +69,7 @@ public class DecryptActivity extends AppCompatActivity {
 
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
-//                 Set the Image in ImageView after decoding the String
+                // Set the Image in ImageView after decoding the String
                 imgView.setImageBitmap(resizedBitmap);
 
             } else {
@@ -130,8 +130,6 @@ public class DecryptActivity extends AppCompatActivity {
     void handleSendImage(Intent intent) {
         Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (imageUri != null) {
-//            startActivityForResult(intent, RESULT_LOAD_IMG);
-            Uri selectedImage = intent.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
             // Get the cursor
@@ -155,7 +153,7 @@ public class DecryptActivity extends AppCompatActivity {
 
             ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
-//                 Set the Image in ImageView after decoding the String
+            // Set the Image in ImageView after decoding the String
             imgView.setImageBitmap(resizedBitmap);
 
         }
@@ -166,6 +164,7 @@ public class DecryptActivity extends AppCompatActivity {
         sizes[0] = mBitmap.getWidth();
         sizes[1] = mBitmap.getHeight();
         while(sizes[0] > 2000 || sizes[1] > 2000){
+            //FIXME Stop being so bad
             if ((sizes[0] > 2000 && sizes[1] < 2000) || (sizes[1] > 2000 && sizes[0] < 2000) || (sizes[1] > 2000 && sizes[0] > 2000)) {
                 sizes[0] = sizes[0] / 2;
                 sizes[1] = sizes[1] / 2;

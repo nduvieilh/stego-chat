@@ -16,7 +16,7 @@ public class ChoiceDialogFragment extends DialogFragment {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Choose an image")
-                .setPositiveButton("Choose existing picture", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Existing picture", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Intent i = new Intent(getActivity().getApplicationContext(), EncryptActivity.class);
                         i.putExtra("img", true);

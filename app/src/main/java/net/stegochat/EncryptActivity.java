@@ -21,22 +21,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.ByteArrayOutputStream;
 import android.content.ContentValues;
-//import java.io.OutputStream;
 import java.io.IOException;
 import android.content.pm.PackageManager;
-
-
-//import java.util.Random;
 
 public class EncryptActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static int RESULT_LOAD_IMG = 1;
     static View viewCopy;
     String imgDecodableString;
-
-
-
-    String fileName;
+    //Don't need to save anymore
+     String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +49,53 @@ public class EncryptActivity extends AppCompatActivity {
                 dispatchTakePictureIntent();
             }
         }
-
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            // When an Image is picked
+            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
+                    && null != data) {
+                // Get the Image from data
+
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                // Get the cursor
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                // Move to first row
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                imgDecodableString = cursor.getString(columnIndex);
+                cursor.close();
+
+                Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
+
+                // Set the Image in ImageView after decoding the String
+                int [] sizes = new int[2];
+                sizes = resizeBitmap(mBitmap, sizes);
+
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                        mBitmap, sizes[0], sizes[1], false);
+
+                ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
+
+                // Set the Image in ImageView after decoding the String
+                imgView.setImageBitmap(resizedBitmap);
+
+            } else {
+                Toast.makeText(this, "You must pick an image",
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
+
+    }
     /*
         Encrypts the message to be embedded into the image
         with the provided password making it impossible to
@@ -94,52 +132,6 @@ public class EncryptActivity extends AppCompatActivity {
         }
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            // When an Image is picked
-            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
-                    && null != data) {
-                // Get the Image from data
-
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-                // Get the cursor
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
-                // Move to first row
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                imgDecodableString = cursor.getString(columnIndex);
-                cursor.close();
-
-                Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
-
-//                 Set the Image in ImageView after decoding the String
-                int [] sizes = new int[2];
-                sizes = resizeBitmap(mBitmap, sizes);
-
-                Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                        mBitmap, sizes[0], sizes[1], false);
-
-                ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
-
-//                 Set the Image in ImageView after decoding the String
-                imgView.setImageBitmap(resizedBitmap);
-
-            } else {
-                Toast.makeText(this, "You must pick an image",
-                        Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
-                    .show();
-        }
-
-    }
-
     public void getImage(View view) {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -150,6 +142,19 @@ public class EncryptActivity extends AppCompatActivity {
         viewCopy = view;
         //TODO rename this
         confirmFireMissiles();
+    }
+
+    private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
+
+        sizes[0] = mBitmap.getWidth();
+        sizes[1] = mBitmap.getHeight();
+        while(sizes[0] > 2000 || sizes[1] > 2000){
+            if ((sizes[0] > 2000 && sizes[1] < 2000) || (sizes[1] > 2000 && sizes[0] < 2000) || (sizes[1] > 2000 && sizes[0] > 2000)) {
+                sizes[0] = sizes[0] / 2;
+                sizes[1] = sizes[1] / 2;
+            }
+        }
+        return sizes;
     }
 
     /*
@@ -332,20 +337,7 @@ public class EncryptActivity extends AppCompatActivity {
         }
     }
 
-    private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
-
-        sizes[0] = mBitmap.getWidth();
-        sizes[1] = mBitmap.getHeight();
-        while(sizes[0] > 2000 || sizes[1] > 2000){
-            if ((sizes[0] > 2000 && sizes[1] < 2000) || (sizes[1] > 2000 && sizes[0] < 2000) || (sizes[1] > 2000 && sizes[0] > 2000)) {
-                sizes[0] = sizes[0] / 2;
-                sizes[1] = sizes[1] / 2;
-            }
-        }
-
-        return sizes;
-    }
-
+    //Should I really rename this?
     public void confirmFireMissiles() {
         DialogFragment newFragment = new ChoiceDialogFragment();
         newFragment.show(getFragmentManager(), "missiles");
