@@ -1,5 +1,6 @@
 package net.stegochat;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -21,13 +23,19 @@ import java.io.ByteArrayOutputStream;
 import android.content.ContentValues;
 //import java.io.OutputStream;
 import java.io.IOException;
+import android.content.pm.PackageManager;
 
 
 //import java.util.Random;
 
 public class EncryptActivity extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static int RESULT_LOAD_IMG = 1;
+    static View viewCopy;
     String imgDecodableString;
+
+
+
     String fileName;
 
     @Override
@@ -36,6 +44,18 @@ public class EncryptActivity extends AppCompatActivity {
         setContentView(R.layout.activity_encrypt);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Boolean bool = extras.getBoolean("img");
+            if(bool == true){
+                getImage(viewCopy);
+            }
+            else{
+                dispatchTakePictureIntent();
+            }
+        }
+
     }
 
     /*
@@ -110,7 +130,7 @@ public class EncryptActivity extends AppCompatActivity {
                 imgView.setImageBitmap(resizedBitmap);
 
             } else {
-                Toast.makeText(this, "You haven't picked Image",
+                Toast.makeText(this, "You must pick an image",
                         Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
@@ -124,6 +144,12 @@ public class EncryptActivity extends AppCompatActivity {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
+    }
+
+    public void showDialog(View view) {
+        viewCopy = view;
+        //TODO rename this
+        confirmFireMissiles();
     }
 
     /*
@@ -152,21 +178,11 @@ public class EncryptActivity extends AppCompatActivity {
 
         // Check if image exists in global scope before trying
         // embed the message into it
-        if(true) { // Todo: Write conditional to ensure image exists
+        if(imgDecodableString == null) {
             // Check global path/image object to ensure it exists
-            // and is of the correct type
-
-            // Check that image is of correct type
-            if(true) {
-                // Todo: Write function to ensure image is of correct type
-            }
-
-            // Check that image is of suitable size
-            if(true) {
-                // Todo: Write function to check size
-            }
-        } else {
-            // Quits sendMessage() if no image exists
+            // Quit early otherwise
+            Toast.makeText(this, "You must pick an image",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -175,9 +191,6 @@ public class EncryptActivity extends AppCompatActivity {
             message = encryptMessage(message, password);
         }
 
-        // Todo: Remove temporary snackbar
-
-//        String text = "This is a long test string so I can see how long I can really make this thing by god this line is long";
         byte msg[] = message.getBytes();
         byte len[] = bit_conversion(msg.length);
 
@@ -194,7 +207,8 @@ public class EncryptActivity extends AppCompatActivity {
 
         String foo = new String(decode(encodedImage));
 
-        save_image(encodedImage);
+        // Dont need to save it anymore(?)
+//        save_image(encodedImage);
 
         File myFile = new File(imgDecodableString);
         Uri uri = Uri.fromFile(myFile);
@@ -204,23 +218,8 @@ public class EncryptActivity extends AppCompatActivity {
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
         sendIntent.setType("image/png");
         startActivity(Intent.createChooser(sendIntent, "Share with"));
-//
-////        Uri file = Uri.parse("/storage/emulated/0/ICL/test.png");
-//
-//        File f = new File("content://media/storage/emulated/0/ICL/test.png");
-//        ContentValues values = new ContentValues(2);
-//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-//        values.put(MediaStore.Images.Media.DATA, f.getAbsolutePath());
-//        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-//
-//        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//        shareIntent.setType("image/png");
-//        shareIntent.putExtra(Intent.EXTRA_STREAM, f);
-//        startActivity(Intent.createChooser(shareIntent, "Sharing thing"));
-//        startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.send_to)));
-
-//        Snackbar.make(view, foo + " " + password, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
+
 
     private Bitmap encode(Bitmap mBitmap, byte[] addition, int offset) {
         int mPhotoWidth = mBitmap.getWidth();
@@ -247,6 +246,7 @@ public class EncryptActivity extends AppCompatActivity {
         bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
         return bm;
     }
+
 
     private byte[] decode(Bitmap mBitmap)
     {
@@ -279,7 +279,6 @@ public class EncryptActivity extends AppCompatActivity {
         return result;
     }
 
-
     private byte[] bit_conversion(int i)
     {
         byte byte3 = (byte)((i & 0xFF000000) >>> 24); //0
@@ -290,6 +289,7 @@ public class EncryptActivity extends AppCompatActivity {
         return(new byte[]{byte3,byte2,byte1,byte0});
     }
 
+    // Probably don't need this anymore
     private void save_image(Bitmap encodedImage){
         FileOutputStream fileOutputStream = null;
         try {
@@ -325,6 +325,13 @@ public class EncryptActivity extends AppCompatActivity {
         }
     }
 
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
     private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
 
         sizes[0] = mBitmap.getWidth();
@@ -337,5 +344,10 @@ public class EncryptActivity extends AppCompatActivity {
         }
 
         return sizes;
+    }
+
+    public void confirmFireMissiles() {
+        DialogFragment newFragment = new ChoiceDialogFragment();
+        newFragment.show(getFragmentManager(), "missiles");
     }
 }
