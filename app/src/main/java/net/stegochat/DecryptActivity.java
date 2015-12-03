@@ -145,11 +145,18 @@ public class DecryptActivity extends AppCompatActivity {
             cursor.close();
 
             Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
+
+            int [] sizes = new int[2];
+            sizes = resizeBitmap(mBitmap, sizes);
+
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                    mBitmap, sizes[0], sizes[1], false);
+
+
             ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
 //                 Set the Image in ImageView after decoding the String
-            imgView.setImageBitmap(BitmapFactory
-                    .decodeFile(imgDecodableString));
+            imgView.setImageBitmap(resizedBitmap);
 
         }
     }
