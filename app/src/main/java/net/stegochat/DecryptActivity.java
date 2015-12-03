@@ -35,15 +35,6 @@ public class DecryptActivity extends AppCompatActivity {
             if (type.startsWith("image/")) {
                 handleSendImage(intent);
             }
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
         }
     }
 
@@ -70,7 +61,8 @@ public class DecryptActivity extends AppCompatActivity {
 
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-                int [] sizes = resizeBitmap(mBitmap);
+                int [] sizes = new int[2];
+                sizes = resizeBitmap(mBitmap, sizes);
 
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(
                         mBitmap, sizes[0], sizes[1], false);
@@ -162,9 +154,7 @@ public class DecryptActivity extends AppCompatActivity {
         }
     }
 
-    private int[] resizeBitmap(Bitmap mBitmap){
-
-        int[] sizes = new int[2];
+    private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
 
         sizes[0] = mBitmap.getWidth();
         sizes[1] = mBitmap.getHeight();

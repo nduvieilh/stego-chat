@@ -95,18 +95,19 @@ public class EncryptActivity extends AppCompatActivity {
                 imgDecodableString = cursor.getString(columnIndex);
                 cursor.close();
 
-
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-//                Bitmap encodedImage = encode(mBitmap, len, 0);
-//                encodedImage = encode(encodedImage, msg, 32);
+//                 Set the Image in ImageView after decoding the String
+                int [] sizes = new int[2];
+                sizes = resizeBitmap(mBitmap, sizes);
+
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                        mBitmap, sizes[0], sizes[1], false);
 
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
-//                imgView.setImageBitmap(encodedImage);
 
 //                 Set the Image in ImageView after decoding the String
-                imgView.setImageBitmap(BitmapFactory
-                        .decodeFile(imgDecodableString));
+                imgView.setImageBitmap(resizedBitmap);
 
             } else {
                 Toast.makeText(this, "You haven't picked Image",
@@ -118,9 +119,6 @@ public class EncryptActivity extends AppCompatActivity {
         }
 
     }
-
-
-
 
     public void getImage(View view) {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
@@ -185,7 +183,13 @@ public class EncryptActivity extends AppCompatActivity {
 
         Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-        Bitmap encodedImage = encode(mBitmap, len, 0);
+        int [] sizes = new int[2];
+        sizes = resizeBitmap(mBitmap, sizes);
+
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                mBitmap, sizes[0], sizes[1], false);
+
+        Bitmap encodedImage = encode(resizedBitmap, len, 0);
         encodedImage = encode(encodedImage, msg, 32);
 
         String foo = new String(decode(encodedImage));
@@ -319,5 +323,19 @@ public class EncryptActivity extends AppCompatActivity {
             e.printStackTrace();
         } finally {
         }
+    }
+
+    private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
+
+        sizes[0] = mBitmap.getWidth();
+        sizes[1] = mBitmap.getHeight();
+        while(sizes[0] > 2000 || sizes[1] > 2000){
+            if ((sizes[0] > 2000 && sizes[1] < 2000) || (sizes[1] > 2000 && sizes[0] < 2000) || (sizes[1] > 2000 && sizes[0] > 2000)) {
+                sizes[0] = sizes[0] / 2;
+                sizes[1] = sizes[1] / 2;
+            }
+        }
+
+        return sizes;
     }
 }
