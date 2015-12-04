@@ -1,6 +1,7 @@
 package net.stegochat;
 
 import android.graphics.Bitmap;
+import android.widget.EditText;
 
 /**
  * Created by bengranberry on 12/3/15.
@@ -26,6 +27,24 @@ public class Util {
         }
 
         return Bitmap.createScaledBitmap(mBitmap, sizes[0], sizes[1], false);
+    }
+
+    /*
+        Checks if the EditText object has text or not for
+        use in conditionals.
+
+        @author Nicky Duvieilh
+
+        @param EditText etText the text object to check
+
+        @return Boolean return true if EditText is empty, false otherwise
+     */
+    public static Boolean isEmptyText(EditText etText) {
+        if(etText.getText().toString().trim().length() > 0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
 

@@ -7,12 +7,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.scottyab.aescrypt.AESCrypt;
 import java.security.GeneralSecurityException;
@@ -62,11 +62,12 @@ public class DecryptActivity extends AppCompatActivity {
 
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
+                TextView txtView = (TextView) findViewById(R.id.imagePreviewText);
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
-                // Set the Image in ImageView after decoding the String
+                // Set the Image in TextView after decoding the String
                 imgView.setImageBitmap(Util.resizeBitmap(mBitmap));
-
+                txtView.setVisibility(View.INVISIBLE);
             } else {
                 Toast.makeText(this, "You haven't picked Image",
                         Toast.LENGTH_LONG).show();
@@ -84,21 +85,36 @@ public class DecryptActivity extends AppCompatActivity {
         startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
     }
 
+    public String decryptMessage(String message, String password) {
+        String output = message;
+        try {
+            output = AESCrypt.decrypt(password, message);
+        } catch(GeneralSecurityException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return output;
+    }
+
     public void receiveMessage(View view){
+        final EditText passwordText = (EditText) findViewById(R.id.decrypt_password);
+        String password = passwordText.getText().toString();
+        Bitmap encodedImage = BitmapFactory.decodeFile(imgDecodableString);
 
-
-        Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
-
-
-
-        byte [] tmp = decode(Util.resizeBitmap(mBitmap));
+        byte [] tmp = decode(Util.resizeBitmap(encodedImage));
         if (tmp == null){
             Toast.makeText(this, "There is no hidden message",
                     Toast.LENGTH_LONG).show();
             return;
         }
-        String message = new String(tmp);
-        Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        String message = new String(decode(Util.resizeBitmap(encodedImage)));
+
+        TextView txtDecrypt = (TextView) findViewById(R.id.decrypt_text);
+        if (!Util.isEmptyText(passwordText)) {
+            message = decryptMessage(message, password);
+        }
+
+        txtDecrypt.setText(message);
+        txtDecrypt.setVisibility(View.VISIBLE);
     }
 
     private byte[] decode(Bitmap mBitmap)

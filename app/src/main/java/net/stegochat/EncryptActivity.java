@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.io.FileOutputStream;
 import java.io.File;
@@ -38,9 +39,6 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
         setContentView(R.layout.activity_encrypt);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-//        Bundle extras = getIntent().getExtras();
-//        if (extras != null) {
 
     }
 
@@ -67,11 +65,12 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
 
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-                // Set the Image in ImageView after decoding the String
+                TextView txtView = (TextView) findViewById(R.id.imagePreviewText);
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
                 // Set the Image in ImageView after decoding the String
                 imgView.setImageBitmap(Util.resizeBitmap(mBitmap));
+                txtView.setVisibility(View.INVISIBLE);
             } else {
                 Toast.makeText(this, "You must pick an image",
                         Toast.LENGTH_LONG).show();
@@ -115,13 +114,6 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
 
         @return Boolean return true if EditText is empty, false otherwise
      */
-    public Boolean isEmptyText(EditText etText) {
-        if(etText.getText().toString().trim().length() > 0) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     public void getImage() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
@@ -135,22 +127,6 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
-
-    private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
-
-        //TODO Make this not suck
-        sizes[0] = mBitmap.getWidth();
-        sizes[1] = mBitmap.getHeight();
-        while(sizes[0] > 2000 || sizes[1] > 2000){
-            if ((sizes[0] > 2000 && sizes[1] < 2000) || (sizes[1] > 2000 && sizes[0] < 2000) || (sizes[1] > 2000 && sizes[0] > 2000)) {
-                sizes[0] = sizes[0] / 2;
-                sizes[1] = sizes[1] / 2;
-            }
-        }
-        return sizes;
-    }
-
-
     /*
         Checks that all requirements are met and calls the
         share intent if all checks pass.  If the password
@@ -168,9 +144,10 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
         String password = passwordText.getText().toString();
 
         // Alert user if no text is found in message
-        if (isEmptyText(messageText)) {
+        if (Util.isEmptyText(messageText)) {
             // Create snackbar message to say that a message is required
-            Snackbar.make(view, "A message is required", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            Toast.makeText(this, "A message is required",
+                    Toast.LENGTH_LONG).show();
             // End the sendMessage() function before it can continue
             return;
         }
@@ -187,7 +164,7 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
         }
 
         // Checks to see if password exists to encrypt message before embedding
-        if (!isEmptyText(passwordText)) {
+        if (!Util.isEmptyText(passwordText)) {
             message = encryptMessage(message, password);
         }
 
@@ -203,7 +180,7 @@ public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFr
         encodedImage = encode(encodedImage, start, 32);
         encodedImage = encode(encodedImage, msg, 64);
 
-        Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+//        Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         // Dont need to save it anymore(?)
         save_image(encodedImage);
