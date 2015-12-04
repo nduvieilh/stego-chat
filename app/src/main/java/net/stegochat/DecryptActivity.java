@@ -91,9 +91,25 @@ public class DecryptActivity extends AppCompatActivity {
     }
 
     public void receiveMessage(View view){
-        Bitmap encodedImage = BitmapFactory.decodeFile(imgDecodableString);
 
-        String message = new String(decode(encodedImage));
+
+        Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
+
+        int [] sizes = new int[2];
+        sizes = resizeBitmap(mBitmap, sizes);
+
+        sizes = resizeBitmap(mBitmap, sizes);
+
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                mBitmap, sizes[0], sizes[1], false);
+
+        byte [] tmp = decode(resizedBitmap);
+        if (tmp == null){
+            Toast.makeText(this, "There is no hidden message",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        String message = new String(tmp);
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
@@ -107,11 +123,30 @@ public class DecryptActivity extends AppCompatActivity {
 
         int length = 0;
         int offset  = 32;
+
         //loop through 32 bytes of data to determine text length
         for(int i=0; i<32; ++i) //i=24 will also work, as only the 4th byte contains real data
         {
             length = (length << 1) | (pix[i] & 1);
         }
+        byte[] start = new byte[4];
+
+        for(int b=0; b<start.length; ++b )
+        {
+            //loop through each bit within a byte of text
+            for(int i=0; i<8; ++i, ++offset)
+            {
+                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
+                start[b] = (byte)((start[b] << 1) | (pix[offset] & 1));
+            }
+        }
+
+        String foo = new String(start);
+
+        if (!foo.equals("$*3d")){
+            return null;
+        }
+
 
         byte[] result = new byte[length];
 

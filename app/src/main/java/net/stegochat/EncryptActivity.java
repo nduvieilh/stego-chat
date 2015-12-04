@@ -30,8 +30,7 @@ public class EncryptActivity extends AppCompatActivity {
     private static int RESULT_LOAD_IMG = 1;
     static View viewCopy;
     String imgDecodableString;
-    //Don't need to save anymore
-     String fileName;
+    String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +85,6 @@ public class EncryptActivity extends AppCompatActivity {
 
                 // Set the Image in ImageView after decoding the String
                 imgView.setImageBitmap(resizedBitmap);
-
-//                Toast.makeText(this, "",
-//                        Toast.LENGTH_LONG).show();
-
             } else {
                 Toast.makeText(this, "You must pick an image",
                         Toast.LENGTH_LONG).show();
@@ -215,7 +210,7 @@ public class EncryptActivity extends AppCompatActivity {
             message = encryptMessage(message, password);
         }
 
-        String startSigil = "begin";
+        String startSigil = "$*3d";
 
         byte start[] = startSigil.getBytes();
         byte msg[] = message.getBytes();
@@ -229,11 +224,11 @@ public class EncryptActivity extends AppCompatActivity {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(
                 mBitmap, sizes[0], sizes[1], false);
 
-        Bitmap encodedImage = encode(resizedBitmap, start, 0);
-        encodedImage = encode(encodedImage, len, 40);
+        Bitmap encodedImage = encode(resizedBitmap, len, 0);
+        encodedImage = encode(encodedImage, start, 32);
         encodedImage = encode(encodedImage, msg, 64);
 
-        String foo = new String(decode(encodedImage));
+//        String foo = new String(decode(encodedImage));
 
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
@@ -277,56 +272,57 @@ public class EncryptActivity extends AppCompatActivity {
         return bm;
     }
 
-    private byte[] decode(Bitmap mBitmap)
-    {
-        int mPhotoWidth = mBitmap.getWidth();
-        int mPhotoHeight = mBitmap.getHeight();
-
-        int[] pix = new int[mPhotoWidth * mPhotoHeight];
-        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
-
-        int length = 0;
-        int offset  = 0;
-        byte[] start = new byte[5];
-
-        for(int b=0; b<start.length; ++b )
-        {
-            //loop through each bit within a byte of text
-            for(int i=0; i<8; ++i, ++offset)
-            {
-                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
-                start[b] = (byte)((start[b] << 1) | (pix[offset] & 1));
-            }
-        }
-
-        String foo = new String(start);
-
-        if (!foo.equals("begin")){
-            Toast.makeText(this, "There is no hidden message",
-                    Toast.LENGTH_LONG).show();
-            return null;
-        }
-
-        //loop through 32 bytes of data to determine text length
-        for(int i=40; i<72; ++i) //i=24 will also work, as only the 4th byte contains real data
-        {
-            length = (length << 1) | (pix[i] & 1);
-        }
-
-        byte[] result = new byte[length];
-
-        //loop through each byte of text
-        for(int b=0; b<result.length; ++b )
-        {
-            //loop through each bit within a byte of text
-            for(int i=0; i<8; ++i, ++offset)
-            {
-                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
-                result[b] = (byte)((result[b] << 1) | (pix[offset] & 1));
-            }
-        }
-        return result;
-    }
+//    private byte[] decode(Bitmap mBitmap)
+//    {
+//        int mPhotoWidth = mBitmap.getWidth();
+//        int mPhotoHeight = mBitmap.getHeight();
+//
+//        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+//        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+//
+//        int length = 0;
+//        int offset  = 32;
+//
+//        //loop through 32 bytes of data to determine text length
+//        for(int i=0; i<32; ++i) //i=24 will also work, as only the 4th byte contains real data
+//        {
+//            length = (length << 1) | (pix[i] & 1);
+//        }
+//        byte[] start = new byte[4];
+//
+//        for(int b=0; b<start.length; ++b )
+//        {
+//            //loop through each bit within a byte of text
+//            for(int i=0; i<8; ++i, ++offset)
+//            {
+//                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
+//                start[b] = (byte)((start[b] << 1) | (pix[offset] & 1));
+//            }
+//        }
+//
+//        String foo = new String(start);
+//
+//        if (!foo.equals("$*3d")){
+//            Toast.makeText(this, "There is no hidden message",
+//                    Toast.LENGTH_LONG).show();
+//            return null;
+//        }
+//
+//
+//        byte[] result = new byte[length];
+//
+//        //loop through each byte of text
+//        for(int b=0; b<result.length; ++b )
+//        {
+//            //loop through each bit within a byte of text
+//            for(int i=0; i<8; ++i, ++offset)
+//            {
+//                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
+//                result[b] = (byte)((result[b] << 1) | (pix[offset] & 1));
+//            }
+//        }
+//        return result;
+//    }
 
     private byte[] bit_conversion(int i)
     {
