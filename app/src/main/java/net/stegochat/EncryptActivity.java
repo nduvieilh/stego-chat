@@ -43,7 +43,7 @@ public class EncryptActivity extends AppCompatActivity {
         if (extras != null) {
             Boolean bool = extras.getBoolean("img");
             if(bool == true){
-                getImage(viewCopy);
+                getImage();
             }
             else{
                 dispatchTakePictureIntent();
@@ -132,10 +132,17 @@ public class EncryptActivity extends AppCompatActivity {
         }
     }
 
-    public void getImage(View view) {
+    public void getImage() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
     public void showDialog(View view) {
@@ -146,6 +153,7 @@ public class EncryptActivity extends AppCompatActivity {
 
     private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
 
+        //TODO Make this not suck
         sizes[0] = mBitmap.getWidth();
         sizes[1] = mBitmap.getHeight();
         while(sizes[0] > 2000 || sizes[1] > 2000){
@@ -156,6 +164,7 @@ public class EncryptActivity extends AppCompatActivity {
         }
         return sizes;
     }
+
 
     /*
         Checks that all requirements are met and calls the
@@ -252,7 +261,6 @@ public class EncryptActivity extends AppCompatActivity {
         return bm;
     }
 
-
     private byte[] decode(Bitmap mBitmap)
     {
         int mPhotoWidth = mBitmap.getWidth();
@@ -327,13 +335,6 @@ public class EncryptActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-        }
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
 
