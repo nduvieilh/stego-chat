@@ -62,16 +62,10 @@ public class DecryptActivity extends AppCompatActivity {
 
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-                int [] sizes = new int[2];
-                sizes = resizeBitmap(mBitmap, sizes);
-
-                Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                        mBitmap, sizes[0], sizes[1], false);
-
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
                 // Set the Image in ImageView after decoding the String
-                imgView.setImageBitmap(resizedBitmap);
+                imgView.setImageBitmap(Util.resizeBitmap(mBitmap));
 
             } else {
                 Toast.makeText(this, "You haven't picked Image",
@@ -95,15 +89,9 @@ public class DecryptActivity extends AppCompatActivity {
 
         Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-        int [] sizes = new int[2];
-        sizes = resizeBitmap(mBitmap, sizes);
 
-        sizes = resizeBitmap(mBitmap, sizes);
 
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                mBitmap, sizes[0], sizes[1], false);
-
-        byte [] tmp = decode(resizedBitmap);
+        byte [] tmp = decode(Util.resizeBitmap(mBitmap));
         if (tmp == null){
             Toast.makeText(this, "There is no hidden message",
                     Toast.LENGTH_LONG).show();
