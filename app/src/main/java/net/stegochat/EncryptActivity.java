@@ -25,7 +25,7 @@ import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
 
-public class EncryptActivity extends AppCompatActivity {
+public class EncryptActivity extends AppCompatActivity implements ChoiceDialogFragment.NoticeDialogListener {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static int RESULT_LOAD_IMG = 1;
     static View viewCopy;
@@ -39,16 +39,9 @@ public class EncryptActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            Boolean bool = extras.getBoolean("img");
-            if(bool == true){
-                getImage();
-            }
-            else{
-                dispatchTakePictureIntent();
-            }
-        }
+//        Bundle extras = getIntent().getExtras();
+//        if (extras != null) {
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -75,16 +68,10 @@ public class EncryptActivity extends AppCompatActivity {
                 Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
                 // Set the Image in ImageView after decoding the String
-                int [] sizes = new int[2];
-                sizes = resizeBitmap(mBitmap, sizes);
-
-                Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                        mBitmap, sizes[0], sizes[1], false);
-
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
                 // Set the Image in ImageView after decoding the String
-                imgView.setImageBitmap(resizedBitmap);
+                imgView.setImageBitmap(Util.resizeBitmap(mBitmap));
             } else {
                 Toast.makeText(this, "You must pick an image",
                         Toast.LENGTH_LONG).show();
@@ -147,12 +134,6 @@ public class EncryptActivity extends AppCompatActivity {
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
-    }
-
-    public void showDialog(View view) {
-        viewCopy = view;
-        //TODO rename this
-        confirmFireMissiles();
     }
 
     private int[] resizeBitmap(Bitmap mBitmap, int [] sizes){
@@ -218,17 +199,9 @@ public class EncryptActivity extends AppCompatActivity {
 
         Bitmap mBitmap = BitmapFactory.decodeFile(imgDecodableString);
 
-        int [] sizes = new int[2];
-        sizes = resizeBitmap(mBitmap, sizes);
-
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                mBitmap, sizes[0], sizes[1], false);
-
-        Bitmap encodedImage = encode(resizedBitmap, len, 0);
+        Bitmap encodedImage = encode(Util.resizeBitmap(mBitmap), len, 0);
         encodedImage = encode(encodedImage, start, 32);
         encodedImage = encode(encodedImage, msg, 64);
-
-//        String foo = new String(decode(encodedImage));
 
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
@@ -271,58 +244,6 @@ public class EncryptActivity extends AppCompatActivity {
         bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
         return bm;
     }
-
-//    private byte[] decode(Bitmap mBitmap)
-//    {
-//        int mPhotoWidth = mBitmap.getWidth();
-//        int mPhotoHeight = mBitmap.getHeight();
-//
-//        int[] pix = new int[mPhotoWidth * mPhotoHeight];
-//        mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
-//
-//        int length = 0;
-//        int offset  = 32;
-//
-//        //loop through 32 bytes of data to determine text length
-//        for(int i=0; i<32; ++i) //i=24 will also work, as only the 4th byte contains real data
-//        {
-//            length = (length << 1) | (pix[i] & 1);
-//        }
-//        byte[] start = new byte[4];
-//
-//        for(int b=0; b<start.length; ++b )
-//        {
-//            //loop through each bit within a byte of text
-//            for(int i=0; i<8; ++i, ++offset)
-//            {
-//                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
-//                start[b] = (byte)((start[b] << 1) | (pix[offset] & 1));
-//            }
-//        }
-//
-//        String foo = new String(start);
-//
-//        if (!foo.equals("$*3d")){
-//            Toast.makeText(this, "There is no hidden message",
-//                    Toast.LENGTH_LONG).show();
-//            return null;
-//        }
-//
-//
-//        byte[] result = new byte[length];
-//
-//        //loop through each byte of text
-//        for(int b=0; b<result.length; ++b )
-//        {
-//            //loop through each bit within a byte of text
-//            for(int i=0; i<8; ++i, ++offset)
-//            {
-//                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
-//                result[b] = (byte)((result[b] << 1) | (pix[offset] & 1));
-//            }
-//        }
-//        return result;
-//    }
 
     private byte[] bit_conversion(int i)
     {
@@ -369,9 +290,17 @@ public class EncryptActivity extends AppCompatActivity {
         }
     }
 
-    //Should I really rename this?
-    public void confirmFireMissiles() {
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        getImage();
+    }
+
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        dispatchTakePictureIntent();
+    }
+
+    public void showDialog(View view) {
+        viewCopy = view;
         DialogFragment newFragment = new ChoiceDialogFragment();
-        newFragment.show(getFragmentManager(), "missiles");
+        newFragment.show(getFragmentManager(), "missiles");;
     }
 }
