@@ -6,9 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-/**
- * Created by bengranberry on 12/2/15.
- */
 public class ChoiceDialogFragment extends DialogFragment {
 
     @Override
@@ -33,5 +30,4 @@ public class ChoiceDialogFragment extends DialogFragment {
         // Create the AlertDialog object and return it
         return builder.create();
     }
-
 }
