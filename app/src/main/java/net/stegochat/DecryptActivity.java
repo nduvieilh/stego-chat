@@ -12,9 +12,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.scottyab.aescrypt.AESCrypt;
+import java.security.GeneralSecurityException;
 
 public class DecryptActivity extends AppCompatActivity {
     private static int RESULT_LOAD_IMG = 1;
@@ -173,4 +174,6 @@ public class DecryptActivity extends AppCompatActivity {
 
         return sizes;
     }
+
+
 }

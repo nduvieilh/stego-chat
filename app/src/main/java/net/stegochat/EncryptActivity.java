@@ -24,6 +24,10 @@ import android.content.ContentValues;
 import java.io.IOException;
 import android.content.pm.PackageManager;
 
+import com.scottyab.aescrypt.AESCrypt;
+
+import java.security.GeneralSecurityException;
+
 public class EncryptActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static int RESULT_LOAD_IMG = 1;
@@ -102,7 +106,7 @@ public class EncryptActivity extends AppCompatActivity {
         read the message after it is extracted without the
         same password.
 
-        @author Nicky Duvieilh, Thomas Wilson
+        @author Nicky Duvieilh
 
         @param string message the main message text
         @param string password the password to encrypt the message with
@@ -110,8 +114,13 @@ public class EncryptActivity extends AppCompatActivity {
         @return string encrypted message
      */
     public String encryptMessage(String message, String password) {
-        // TODO: create the encryption code - Thomas
-        return "[" + password + "] " + message; // Temporary
+        String output = message;
+        try {
+            output =  AESCrypt.encrypt(password, message);
+        } catch(GeneralSecurityException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return output;
     }
 
     /*
@@ -190,6 +199,7 @@ public class EncryptActivity extends AppCompatActivity {
             return;
         }
 
+
         // Check if image exists in global scope before trying
         // embed the message into it
         if(imgDecodableString == null) {
@@ -222,7 +232,6 @@ public class EncryptActivity extends AppCompatActivity {
         String foo = new String(decode(encodedImage));
 
         // Dont need to save it anymore(?)
-//        save_image(encodedImage);
 
         File myFile = new File(imgDecodableString);
         Uri uri = Uri.fromFile(myFile);
