@@ -10,6 +10,7 @@
     </string>
     <string name="password">Password (optional)</string>
     <string name="message_body">Message</string>
+    <string name="txt_select_image">Click to add image</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

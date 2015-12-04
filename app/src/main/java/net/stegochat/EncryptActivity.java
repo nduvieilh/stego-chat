@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.io.FileOutputStream;
 import java.io.File;
@@ -85,10 +88,12 @@ public class EncryptActivity extends AppCompatActivity {
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(
                         mBitmap, sizes[0], sizes[1], false);
 
+                TextView txtView = (TextView) findViewById(R.id.imagePreviewText);
                 ImageView imgView = (ImageView) findViewById(R.id.imagePreview);
 
                 // Set the Image in ImageView after decoding the String
                 imgView.setImageBitmap(resizedBitmap);
+                txtView.setVisibility(View.INVISIBLE);
 
             } else {
                 Toast.makeText(this, "You must pick an image",
