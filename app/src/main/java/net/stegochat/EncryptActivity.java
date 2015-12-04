@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -20,9 +19,7 @@ import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.ByteArrayOutputStream;
-import android.content.ContentValues;
 import java.io.IOException;
-import android.content.pm.PackageManager;
 
 import com.scottyab.aescrypt.AESCrypt;
 
@@ -89,6 +86,9 @@ public class EncryptActivity extends AppCompatActivity {
 
                 // Set the Image in ImageView after decoding the String
                 imgView.setImageBitmap(resizedBitmap);
+
+//                Toast.makeText(this, "",
+//                        Toast.LENGTH_LONG).show();
 
             } else {
                 Toast.makeText(this, "You must pick an image",
@@ -215,6 +215,9 @@ public class EncryptActivity extends AppCompatActivity {
             message = encryptMessage(message, password);
         }
 
+        String startSigil = "begin";
+
+        byte start[] = startSigil.getBytes();
         byte msg[] = message.getBytes();
         byte len[] = bit_conversion(msg.length);
 
@@ -226,14 +229,18 @@ public class EncryptActivity extends AppCompatActivity {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(
                 mBitmap, sizes[0], sizes[1], false);
 
-        Bitmap encodedImage = encode(resizedBitmap, len, 0);
-        encodedImage = encode(encodedImage, msg, 32);
+        Bitmap encodedImage = encode(resizedBitmap, start, 0);
+        encodedImage = encode(encodedImage, len, 40);
+        encodedImage = encode(encodedImage, msg, 64);
 
         String foo = new String(decode(encodedImage));
 
-        // Dont need to save it anymore(?)
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-        File myFile = new File(imgDecodableString);
+        // Dont need to save it anymore(?)
+        save_image(encodedImage);
+
+        File myFile = new File(fileName);
         Uri uri = Uri.fromFile(myFile);
 
         Intent sendIntent = new Intent();
@@ -279,9 +286,29 @@ public class EncryptActivity extends AppCompatActivity {
         mBitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
 
         int length = 0;
-        int offset  = 32;
+        int offset  = 0;
+        byte[] start = new byte[5];
+
+        for(int b=0; b<start.length; ++b )
+        {
+            //loop through each bit within a byte of text
+            for(int i=0; i<8; ++i, ++offset)
+            {
+                //assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
+                start[b] = (byte)((start[b] << 1) | (pix[offset] & 1));
+            }
+        }
+
+        String foo = new String(start);
+
+        if (!foo.equals("begin")){
+            Toast.makeText(this, "There is no hidden message",
+                    Toast.LENGTH_LONG).show();
+            return null;
+        }
+
         //loop through 32 bytes of data to determine text length
-        for(int i=0; i<32; ++i) //i=24 will also work, as only the 4th byte contains real data
+        for(int i=40; i<72; ++i) //i=24 will also work, as only the 4th byte contains real data
         {
             length = (length << 1) | (pix[i] & 1);
         }
@@ -317,16 +344,15 @@ public class EncryptActivity extends AppCompatActivity {
         try {
 
             // create a File object for the parent directory
-            File wallpaperDirectory = new File("/sdcard/ICL/");
+            File wallpaperDirectory = new File("/sdcard/stego-chat/");
             // have the object build the directory structure, if needed.
             wallpaperDirectory.mkdirs();
 
             fileName = wallpaperDirectory.getAbsolutePath();
 
+            fileName = String.format("/sdcard/stego-chat/" + System.currentTimeMillis() + ".png");
             //Capture is folder name and file name with date and time
-            fileOutputStream = new FileOutputStream(String.format(
-                    "/sdcard/ICL/test.png"));
-//                    System.currentTimeMillis()));
+            fileOutputStream = new FileOutputStream(fileName);
 
             // Here we Resize the Image ...
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
