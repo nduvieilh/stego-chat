@@ -232,8 +232,9 @@ public class EncryptActivity extends AppCompatActivity {
         String foo = new String(decode(encodedImage));
 
         // Dont need to save it anymore(?)
+        save_image(encodedImage);
 
-        File myFile = new File(imgDecodableString);
+        File myFile = new File(fileName);
         Uri uri = Uri.fromFile(myFile);
 
         Intent sendIntent = new Intent();
@@ -317,16 +318,15 @@ public class EncryptActivity extends AppCompatActivity {
         try {
 
             // create a File object for the parent directory
-            File wallpaperDirectory = new File("/sdcard/ICL/");
+            File wallpaperDirectory = new File("/sdcard/stego-chat/");
             // have the object build the directory structure, if needed.
             wallpaperDirectory.mkdirs();
 
             fileName = wallpaperDirectory.getAbsolutePath();
 
+            fileName = String.format("/sdcard/stego-chat/" + System.currentTimeMillis() + ".png");
             //Capture is folder name and file name with date and time
-            fileOutputStream = new FileOutputStream(String.format(
-                    "/sdcard/ICL/test.png"));
-//                    System.currentTimeMillis()));
+            fileOutputStream = new FileOutputStream(fileName);
 
             // Here we Resize the Image ...
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
